@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SUS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .unimed-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            z-index: 2000;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .unimed-text {
+            color: #0066cc;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        .unimed-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        .unimed-btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .forgive-btn {
+            background: #0066cc;
+            color: white;
+        }
+        .betray-btn {
+            background: #333;
+            color: white;
+        }
+        .observation-text {
+            position: fixed;
+            bottom: 1rem;
+            width: 100%;
+            text-align: center;
+            color: #0066cc;
+            font-size: 1.25rem;
+            display: none;
+        }
+        .beta-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: black;
+            color: white;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            font-size: 3rem;
+            font-weight: bold;
+            z-index: 3000;
+        }
+        [type="submit"]:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body class="bg-white h-screen flex flex-col items-center justify-center p-4">
+    <!-- Header Section -->
+    <div class="text-center mb-8">
+        <div class="text-5xl font-bold text-blue-600">SUS</div>
+        <div class="text-lg text-gray-600 mt-2">SISTEMA ÚNICO DE SAÚDE, ESTAMOS AQUI PARA TE PIORAR</div>
+    </div>
+
+    <!-- Form Container -->
+    <div class="w-full max-w-md p-6 bg-white shadow-lg rounded-lg">
+        <form action="/submit" method="POST" class="space-y-4">
+            <!-- Symptom Input -->
+            <div>
+                <label for="symptom" class="block text-gray-700 font-medium mb-2">Descreva seu sintoma:</label>
+                <textarea 
+                    id="symptom" 
+                    name="symptom" 
+                    required
+                    oninput="document.querySelector('[type=submit]').disabled = !this.value.trim()"
+                    class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Ex: Dor de cabeça..."
+                ></textarea>
+            </div>
+
+            <!-- Error Message -->
+            {% if error %}
+            <div class="text-red-500 text-sm">{{ error }}</div>
+            {% endif %}
+
+            <!-- Submit Button -->
+            <button 
+                type="submit" 
+                disabled
+                class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+                Enviar
+            </button>
+
+            <!-- Special Button -->
+            <button 
+                type="button"
+                onclick="document.getElementById('symptomButtons').classList.toggle('hidden')"
+                class="w-full mt-4 text-blue-800 border-2 border-blue-800 py-2 rounded-lg hover:bg-blue-50 transition duration-200"
+            >
+                Você é burro e não sabe o que sente? Clique aqui
+            </button>
+
+            <!-- Symptom Buttons -->
+            <div class="grid grid-cols-2 gap-2 mt-4 hidden" id="symptomButtons">
+                <button 
+                    type="button"
+                    onclick="document.getElementById('symptom').value = 'DOR DE CABEÇA'"
+                    class="text-blue-800 border-2 border-blue-800 py-2 rounded-full hover:bg-blue-50 transition duration-200"
+                >
+                    DOR DE CABEÇA
+                </button>
+                <button 
+                    type="button"
+                    onclick="document.getElementById('symptom').value = 'VOMITO'"
+                    class="text-blue-800 border-2 border-blue-800 py-2 rounded-full hover:bg-blue-50 transition duration-200"
+                >
+                    VOMITO
+                </button>
+                <button 
+                    type="button"
+                    onclick="document.getElementById('symptom').value = 'DILATAÇÃO OCULAR'"
+                    class="text-blue-800 border-2 border-blue-800 py-2 rounded-full hover:bg-blue-50 transition duration-200"
+                >
+                    DILATAÇÃO OCULAR
+                </button>
+                <button 
+                    type="button"
+                    onclick="document.getElementById('symptom').value = 'DORMÊNCIA'"
+                    class="text-blue-800 border-2 border-blue-800 py-2 rounded-full hover:bg-blue-50 transition duration-200"
+                >
+                    DORMÊNCIA
+                </button>
+                <button 
+                    type="button"
+                    onclick="document.getElementById('symptom').value = 'AINDA NÃO SEI'"
+                    class="text-blue-800 border-2 border-blue-800 py-2 rounded-full hover:bg-blue-50 transition duration-200"
+                >
+                    AINDA NÃO SEI
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <style>
+        @keyframes elementsFall {
+            0% { transform: translateY(0); opacity: 1; }
+            100% { transform: translateY(100vh); opacity: 0; }
+        }
+        @keyframes flagRise {
+            0% { transform: translateY(100vh); }
+            100% { transform: translateY(0); }
+        }
+        @keyframes flagFall {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(100vh); }
+        }
+        .falling {
+            animation: elementsFall 1.5s forwards;
+        }
+        .red-screen {
+            background-color: #ff0000 !important;
+            transition: background 0.5s;
+        }
+        .green-text {
+            color: #00aa00 !important;
+            font-weight: bold;
+        }
+        .red-screen * {
+            color: white !important;
+        }
+        .red-screen button {
+            background-color: #cc0000 !important;
+            border-color: #990000 !important;
+        }
+        .yellow-star {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 300px;
+            color: yellow;
+            z-index: 1000;
+            display: none;
+        }
+        .yellow-star::before {
+            content: "★";
+        }
+        .brazil-flag {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, 
+                #009b3a 0%, #009b3a 33%,
+                #fedf00 33%, #fedf00 66%,
+                #002776 66%, #002776 100%);
+            z-index: 999;
+            display: none;
+        }
+        .patriot-text {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 40px;
+            font-weight: bold;
+            color: #002776;
+            z-index: 1001;
+            display: none;
+        }
+        .preference-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            z-index: 1100;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+        .preference-buttons {
+            display: flex;
+            gap: 20px;
+        }
+        .preference-buttons button {
+            padding: 15px 30px;
+            font-size: 24px;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+        .lula-btn {
+            background-color: #ff0000;
+            color: white;
+        }
+        .bolsonaro-btn {
+            background-color: #00aa00;
+            color: white;
+        }
+        .unimed-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: white;
+            z-index: 1200;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        .unimed-text {
+            color: #0066cc;
+            font-size: 40px;
+            margin-bottom: 20px;
+        }
+        .unimed-subtext {
+            color: #0066cc;
+            font-size: 24px;
+            margin-bottom: 40px;
+        }
+        .unimed-buttons {
+            display: flex;
+            gap: 20px;
+        }
+        .unimed-btn {
+            padding: 15px 30px;
+            font-size: 18px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .forgive-btn {
+            background-color: #0066cc;
+            color: white;
+        }
+        .betray-btn {
+            background-color: #333;
+            color: white;
+        }
+        .observation-text {
+            position: fixed;
+            bottom: 20px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            color: #0066cc;
+            font-size: 18px;
+            display: none;
+        }
+        .beta-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: black;
+            color: white;
+            z-index: 1300;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            font-size: 60px;
+            font-weight: bold;
+        }
+    </style>
+
+    <div class="yellow-L">L</div>
+    <div class="brazil-flag"></div>
+    <div class="patriot-text">PATRIOTAS, TMJ PAE</div>
+    <div class="preference-screen">
+        <div class="preference-buttons">
+            <button class="lula-btn" onclick="chooseCandidate('Lula')">LULA</button>
+            <button class="bolsonaro-btn" onclick="chooseCandidate('Bolsonaro')">BOLSONARO</button>
+            <button class="bolsonaro-btn" onclick="showUnimedScreen()">UNIMED</button>
+        </div>
+    </div>
+
+    <div class="unimed-screen">
+        <div class="unimed-text">VOCÊ ME TRAIU...</div>
+        <div class="unimed-subtext">ASS. SISTEMA ÚNICO DE SAÚDE</div>
+        <div class="unimed-buttons">
+            <button class="unimed-btn forgive-btn" onclick="forgiveUnimed()">Desculpa, chefe.</button>
+            <button class="unimed-btn betray-btn" onclick="betrayUnimed()">Sim, eu te trai. A Unimed é melhor.</button>
+        </div>
+    </div>
+
+    <div class="observation-text">VOCÊ ESTÁ SOB OBSERVAÇÃO</div>
+    <div class="beta-screen">TU É BETA</div>
+
+    <script>
+        // Real-time text detection
+        const symptomInput = document.getElementById('symptom');
+        symptomInput.addEventListener('input', function() {
+            const text = this.value.toUpperCase();
+            if(text.includes('EU GOSTO DO LULA')) {
+                document.body.classList.add('red-screen');
+                this.classList.remove('green-text');
+            } else if(text.includes('EU GOSTO DO BOLSONARO')) {
+                this.classList.add('green-text');
+                document.body.classList.remove('red-screen');
+            } else {
+                this.classList.remove('green-text');
+                document.body.classList.remove('red-screen');
+            }
+        });
+
+        // Form submission handler
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const text = symptomInput.value.toUpperCase();
+            
+            if(text.includes('EU GOSTO DO LULA')) {
+                e.preventDefault();
+                triggerLulaEffect();
+            } else if(text.includes('EU GOSTO DO BOLSONARO')) {
+                e.preventDefault();
+                triggerBolsonaroEffect();
+            }
+        });
+
+        function triggerLulaEffect() {
+            // Make all elements fall
+            const allElements = document.querySelectorAll('body > *:not(script):not(style):not(.yellow-L)');
+            allElements.forEach(el => {
+                el.classList.add('falling');
+            });
+
+            // After animation completes
+            setTimeout(() => {
+                // Hide fallen elements
+                allElements.forEach(el => {
+                    el.style.display = 'none';
+                });
+                
+                // Show big yellow L
+                document.querySelector('.yellow-star').style.display = 'block';
+                
+                // Make background fully red
+                document.body.classList.add('red-screen');
+            }, 1500);
+        }
+
+        function triggerBolsonaroEffect() {
+            // Make all elements fall
+            const allElements = document.querySelectorAll('body > *:not(script):not(style):not(.brazil-flag):not(.patriot-text)');
+            allElements.forEach(el => {
+                el.classList.add('falling');
+            });
+
+            // Show Brazil flag
+            setTimeout(() => {
+                const flag = document.querySelector('.brazil-flag');
+                flag.style.display = 'block';
+                flag.style.animation = 'flagRise 1s forwards';
+                
+                // After flag rises, make it fall
+                setTimeout(() => {
+                    flag.style.animation = 'flagFall 1s forwards';
+                    
+                    // Show patriot text
+                    setTimeout(() => {
+                        document.querySelector('.patriot-text').style.display = 'block';
+                    }, 1000);
+                }, 2000);
+            }, 1500);
+        }
+
+        function chooseCandidate(candidate) {
+            if(candidate === 'Lula') {
+                symptomInput.value = 'Eu gosto do Lula';
+            } else {
+                symptomInput.value = 'Eu gosto do Bolsonaro';
+            }
+            document.querySelector('.preference-screen').style.display = 'none';
+            document.querySelector('[type=submit]').disabled = false;
+        }
+
+        // Original button functionality
+        document.querySelectorAll('#symptomButtons button').forEach(button => {
+            button.addEventListener('click', () => {
+                document.querySelector('[type=submit]').disabled = false;
+            });
+        });
+
+        // Add new "De quem você gosta mais" button
+        const newButton = document.createElement('button');
+        newButton.textContent = 'De quem você gosta mais';
+        newButton.className = 'w-full mt-4 text-blue-800 border-2 border-blue-800 py-2 rounded-lg hover:bg-blue-50 transition duration-200';
+        newButton.onclick = () => {
+            document.querySelector('.preference-screen').style.display = 'flex';
+        };
+        document.querySelector('form').appendChild(newButton);
+    </script>
+
+    <!-- Message Display Section -->
+    {% if message %}
+    <div class="fixed bottom-0 left-0 right-0 p-4 bg-white shadow-lg rounded-t-lg animate-fade-in">
+        <div class="max-w-md mx-auto bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded-lg mb-2">
+            <p>{{ message }}</p>
+        </div>
+        <div class="text-center">
+            <button 
+                onclick="this.parentElement.parentElement.remove()"
+                class="text-blue-600 hover:underline"
+            >
+                Fechar
+            </button>
+        </div>
+    </div>
+    {% endif %}
+
+    <script>
+        // Auto-close message after 5 seconds
+        document.addEventListener('DOMContentLoaded', function() {
+            const messageModal = document.querySelector('.fixed.inset-0');
+            if (messageModal) {
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 5000);
+            }
+        });
+    </script>
+</body>
+</html>
